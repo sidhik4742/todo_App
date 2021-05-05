@@ -1,12 +1,85 @@
+import {useRef, useState} from 'react';
 import './App.css';
 
+/**
+ *
+ *   !   automated day name in todo app use
+ *   !   var d = new Date();
+ *   !   var n = d.getUTCDay();
+ *   !
+ *
+ *   ?    result: 0=Sunday, 1= Monday etc...
+ */
+
 function App() {
+  const [todos, setTodos] = useState([]);
+  const [todo, setTodo] = useState('');
+  const [selectedTodo, setSelectedTodo] = useState(false);
+
+  const inputHandler = (event) => {
+    setTodo(event.target.value);
+  };
+
+  const addItemHandler = () => {
+    let todoObject = {
+      id: Date.now(),
+      todoContent: todo,
+    };
+    setTodos([...todos, todoObject]);
+    setTodo('');
+  };
+
+  const pressEnterKeyHandler = (event) => {
+    if (event.code === 'Enter') {
+      addItemHandler();
+    }
+  };
+
+  const removeTodoHandler = (id) => {
+    document.getElementById(id).classList.add('todoAnimationRemove');
+    setTimeout(() => {
+      document
+        .getElementById(id)
+        .classList.remove('todoAnimationRemove', 'todoAnimationSelectedStyle');
+      setTodos(todos.filter((todo) => todo.id !== id));
+    }, 1400);
+  };
+
+  const selectedTodoHandler = (id) => {
+    console.log(id);
+    setSelectedTodo(!selectedTodo);
+    if (!selectedTodo) {
+      // document
+      //   .getElementById(id)
+      //   .classList.remove('removeTodoAnimationSelected');
+      document.getElementById(id).classList.add('todoAnimationSelected');
+      document
+        .getElementById(id)
+        .classList.toggle('todoAnimationSelectedStyle');
+    } else {
+      // document.getElementById(id).classList.remove('todoAnimationSelected');
+      document.getElementById(id).classList.add('removeTodoAnimationSelected');
+      document
+        .getElementById(id)
+        .classList.toggle('todoAnimationSelectedStyle');
+    }
+    setTimeout(() => {
+      document
+        .getElementById(id)
+        .classList.remove(
+          'todoAnimationSelected',
+          'removeTodoAnimationSelected'
+        );
+    }, 1800);
+    console.log(selectedTodo);
+  };
+
   return (
     <div className="app">
-      <div className="mainHeading" >
+      <div className="mainHeading">
         <h1>ToDo List</h1>
       </div>
-      <div className="todoBanner" >
+      <div className="todoBanner">
         <svg
           width="100px"
           height="100px"
@@ -184,30 +257,48 @@ function App() {
         <h2>Whoop, it's Wednesday 🌝 ☕ </h2>
       </div>
       <div className="input">
-        <form>
-          <input type="text" placeholder="🖊️ Add item..." />
-          <i className="fas fa-plus"></i>
-        </form>
+        <input
+          type="text"
+          placeholder="🖊️ Add item..."
+          onChange={inputHandler}
+          onKeyPress={pressEnterKeyHandler}
+          value={todo}
+        />
+        <i className="fas fa-plus" onClick={addItemHandler}></i>
       </div>
       <div className="todos">
-        <div className="todo">
-          <div className="left">
-            <input type="checkbox" name="" id="" />
-            <p>This is react tutorial</p>
-          </div>
-          <div className="right">
-          <i className="fas fa-times"></i>
-          </div>
-        </div>
-        <div className="todo">
-          <div className="left">
+        {todos
+          ? todos.map((content, index) => (
+              <div key={index} id={content.id} className="todo">
+                <div className="left">
+                  <input
+                    type="checkbox"
+                    name=""
+                    id=""
+                    onChange={() => selectedTodoHandler(content.id)}
+                    value={selectedTodo}
+                  />
+                  <p>{content.todoContent}</p>
+                </div>
+                <div className="right">
+                  <i
+                    className="fas fa-times"
+                    onClick={() => removeTodoHandler(content.id)}
+                  ></i>
+                </div>
+              </div>
+            ))
+          : null}
+
+        {/* <div className="todo todoAnimationSelected ">
+          <div className="left ">
             <input type="checkbox" name="" id="" />
             <p>Today is wednesday</p>
           </div>
           <div className="right">
-          <i className="fas fa-times"></i>
+            <i className="fas fa-times"></i>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
